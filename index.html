@@ -1511,6 +1511,71 @@ renderReviews();
   $('#rpx').onclick = e => { e.stopPropagation(); off = true; clearTimeout(t1); clearTimeout(t2); box.classList.remove('on'); };
   t1 = setTimeout(show, 3000);
 })();
+/* ================= LIVE IMAGES (admin se picture badlo) ================= */
+let IMGMAP = {};
+try { IMGMAP = JSON.parse(localStorage.getItem('mch_imgs')) || {}; } catch (e) {}
+PRODUCTS.forEach(p => p.orig = p.img);
+const ORIG_PACK = STORE.packImg;
+
+function applyImages() {
+  PRODUCTS.forEach(p => p.img = IMGMAP[p.orig] || p.orig);
+  $$('.slide img').forEach(im => {
+    im.dataset.o = im.dataset.o || im.getAttribute('src');
+    im.src = IMGMAP[im.dataset.o] || im.dataset.o;
+  });
+  STORE.packImg = IMGMAP[ORIG_PACK] || ORIG_PACK;
+  renderGrid($('.tab.active')?.dataset.tab || 'all');
+  renderCart();
+}
+async function loadImages() {
+  try {
+    const r = await fetch(STORE.googleSheetUrl + '?t=' + Date.now());
+    IMGMAP = await r.json();
+    localStorage.setItem('mch_imgs', JSON.stringify(IMGMAP));
+  } catch (e) { console.error('images load error', e); }
+  applyImages();
+}
+applyImages();   // pichli saved pictures foran
+loadImages();    // phir latest pictures
+
+/* ---------- Admin panel: website kholein  .../index.html#admin ---------- */
+function openAdmin() {
+  const pass = sessionStorage.getItem('mch_adm') || prompt('Admin password:');
+  if (!pass) return;
+  sessionStorage.setItem('mch_adm', pass);
+  const slots = [['images/slider.jpg','Slider 1 (Ladies)'], ['images/slider2.jpg','Slider 2 (Gents)'], ['images/packing.jpg','Packing Box']];
+  const seen = new Set(slots.map(s => s[0]));
+  PRODUCTS.forEach(p => { if (!seen.has(p.orig)) { seen.add(p.orig); slots.push([p.orig, p.name]); } });
+  $('#policyModal').innerHTML = `
+    <button class="close-x" data-close aria-label="Close">${ICON_X}</button>
+    <div class="modal-head"><h3>Change Pictures</h3></div>
+    <div class="policy-body">
+      ${slots.map(([k, n]) => `
+        <div class="policy-item" style="display:flex;gap:12px;align-items:center">
+          <img src="${IMGMAP[k] || k}" style="width:56px;height:72px;object-fit:cover;border-radius:6px;background:#eee" alt="">
+          <div style="flex:1;min-width:0"><h4 style="font-size:17px">${esc(n)}</h4><p style="font-size:12px">${esc(k)}</p></div>
+          <label class="btn btn-outline" style="padding:9px 12px;font-size:10px;cursor:pointer">Change
+            <input type="file" accept="image/*" class="sr-only" data-slot="${esc(k)}"></label>
+        </div>`).join('')}
+    </div>`;
+  openOverlay('#policyOverlay');
+}
+document.addEventListener('change', async e => {
+  const inp = e.target.closest('input[data-slot]'); if (!inp || !inp.files[0]) return;
+  const slot = inp.dataset.slot, before = IMGMAP[slot];
+  toast('Picture upload ho rahi hai...');
+  try {
+    const data = (await compressImage(inp.files[0], 1400, 0.8)).split(',')[1];
+    await fetch(STORE.googleSheetUrl, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action:'setImage', pass: sessionStorage.getItem('mch_adm'), slot, data }) });
+    await new Promise(r => setTimeout(r, 2500));
+    await loadImages();
+    if (IMGMAP[slot] && IMGMAP[slot] !== before) { toast('Picture live ho gayi!'); openAdmin(); }
+    else { sessionStorage.removeItem('mch_adm'); toast('Fail: password galat ya script update nahi hui'); }
+  } catch (err) { toast('Upload nahi hui, dobara try karein'); }
+});
+if (location.hash === '#admin') setTimeout(openAdmin, 600);
+window.addEventListener('hashchange', () => { if (location.hash === '#admin') openAdmin(); });
 </script>
 
 <!--
