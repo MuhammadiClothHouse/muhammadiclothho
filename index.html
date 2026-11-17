@@ -599,6 +599,21 @@
     .rel-nav { display: none; }
     .mapbox { aspect-ratio: 4 / 3; }
   }
+
+  /* ===== Trusted section (product page) ===== */
+  .trust { background: #0f0e0c radial-gradient(ellipse at top, rgba(201,162,75,.14), transparent 60%); color: #fff; text-align: center; padding: 48px 24px 40px; }
+  .trust-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border: 1px solid rgba(201,162,75,.55); border-radius: 999px; color: #d9bf7a; font-size: 14px; background: rgba(201,162,75,.08); }
+  .trust-badge i { width: 7px; height: 7px; border-radius: 50%; background: #d9bf7a; }
+  .trust h4 { font-family: var(--serif); font-style: italic; font-size: clamp(30px, 5vw, 46px); font-weight: 700; margin: 18px 0 10px; line-height: 1.1; }
+  .trust > p { max-width: 560px; margin: 0 auto 28px; color: rgba(255,255,255,.85); font-size: 16px; }
+  .trust-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 960px; margin: 0 auto 26px; }
+  .trust-card { border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 26px 16px; display: grid; gap: 6px; align-content: start; }
+  .trust-card b { font-family: var(--serif); font-size: clamp(30px, 4vw, 44px); color: #d9c97a; line-height: 1.1; }
+  .trust-card strong { font-size: 16px; font-weight: 600; }
+  .trust-card span { font-size: 14px; color: rgba(255,255,255,.8); }
+  .trust-points { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 26px; font-size: 14px; }
+  .trust-points span { color: #fff; }
+  @media (max-width: 700px) { .trust-stats { grid-template-columns: 1fr; } .trust { padding: 36px 16px 32px; } }
 </style>
 </head>
 <body>
@@ -942,6 +957,18 @@ const STORE = {
   phoneDisplay: '+92 324 4266894',
   email: 'usarana034@gmail.com',
   address: 'Sahiwal Farid Town Abbas Chowk',
+  // Product page ke neeche wala "Trusted" section - yahan apne asli numbers/likhai badal sakte hain
+  trust: {
+    badge: 'Trusted by Pakistan',
+    title: 'Cloth you can feel',
+    text: 'Premium unstitched suits and bed sheets, delivered across Pakistan at fair prices.',
+    stats: [
+      { n: '3-5 days', t: 'nationwide delivery', d: 'to your doorstep across Pakistan' },
+      { n: 'Rs. 15,000+', t: 'free delivery', d: 'on orders above this amount' },
+      { n: 'COD', t: 'cash on delivery', d: 'plus JazzCash, EasyPaisa & bank transfer' },
+    ],
+    points: ['Easy exchange at our shop', 'Cash on delivery available', 'Premium gift packing box', 'Ships across Pakistan'],
+  },
   mapQuery: '',                        // optional: Google Maps par dukaan ka exact naam/address likhein (khali ho to name + address use hota hai)
   // Paste your Google Apps Script Web App URL here (see instructions)
   googleSheetUrl: 'https://script.google.com/macros/s/AKfycbyxpmLyUmaS4j5x75v5TRZFpQ27a-b4oV9E6dkw-NjqC_T7ggqLnJKEKNJVJL6wWlM/exec',
@@ -976,8 +1003,6 @@ const PRODUCTS = [
   { id:'w7', name:'Embroidered Shirt Trouser Shawl', cat:'women', col:'Ladies Unstitched', price:4490, img:'images/p4.png', fabric:'Premium Khaddar, Unstitched Suit', desc:'Dyed Embroidered Khaddar Shirt - Dyed Embroidered Pashmina Shawl - Dyed Khaddar Trouser' },
   { id:'w8', name:'Embroidered Shirt Trouser Shawl', cat:'women', col:'Ladies Unstitched', price:4490, img:'images/p2.jpg', badge:'Premium', fabric:'Premium Khaddar, Unstitched Suit', desc:'Dyed Embroidered Khaddar Shirt - Dyed Embroidered Pashmina Shawl - Dyed Khaddar Trouser' },
 ];
-];
-  
 
 /* =========================================================
    CUSTOMER REVIEWS (home page slider)
@@ -1276,6 +1301,16 @@ document.addEventListener('click', e => {
 
 /* ---------- Product page (full pictures, details, tabs) ---------- */
 const CARE_TEXT = 'Dry clean is recommended for embroidered and premium fabrics. Wash & wear fabrics can be washed by hand in cold water with a mild detergent. Do not bleach. Iron on medium heat.';
+function trustHTML() {
+  const t = STORE.trust; if (!t) return '';
+  return `<div class="trust">
+    <span class="trust-badge"><i></i>${esc(t.badge)}</span>
+    <h4>${esc(t.title)}</h4>
+    <p>${esc(t.text)}</p>
+    <div class="trust-stats">${t.stats.map(x => `<div class="trust-card"><b>${esc(x.n)}</b><strong>${esc(x.t)}</strong><span>${esc(x.d)}</span></div>`).join('')}</div>
+    <div class="trust-points">${t.points.map(x => `<span>&#10003; ${esc(x)}</span>`).join('')}</div>
+  </div>`;
+}
 function relatedHTML(p) {
   const same = PRODUCTS.filter(x => x.id !== p.id && x.cat === p.cat);
   const rest = PRODUCTS.filter(x => x.id !== p.id && x.cat !== p.cat);
@@ -1330,7 +1365,7 @@ function openQuickView(id, buyMode) {
         </div>
       </div>
     </div>
-    ${productReviewsHTML(p.id)}${relatedHTML(p)}`;
+    ${productReviewsHTML(p.id)}${relatedHTML(p)}${trustHTML()}`;
   m.scrollTop = 0;
   $$('[data-rel]', m).forEach(c => c.onclick = () => openQuickView(c.dataset.rel, false));
   const rr = $('#relRow');
