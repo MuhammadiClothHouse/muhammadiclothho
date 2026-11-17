@@ -539,6 +539,66 @@
   .slotcol { display: grid; gap: 2px; justify-items: center; font-size: 11px; color: var(--muted); }
   .slotbox { width: 56px; height: 72px; border: 1px dashed var(--gold); border-radius: 6px; display: grid; place-items: center; overflow: hidden; cursor: pointer; background: var(--white); font-size: 22px; color: var(--gold); }
   .slotbox img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ===== Product page ===== */
+  .modal.wide { max-width: 1240px; }
+  .pp { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 30px; padding: 26px; align-items: start; }
+  .pp-galwrap { position: relative; }
+  .pp-gal { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
+  .pp-gal.one { grid-template-columns: 1fr; }
+  .pp-gal img { width: 100%; height: auto; display: block; background: var(--cream); border-radius: 4px; }
+  .pp-count { display: none; }
+  .pp-info { position: sticky; top: 0; display: flex; flex-direction: column; gap: 14px; padding-top: 28px; }
+  .pp-rate { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+  .pp-rate .st { color: var(--star); letter-spacing: 2px; font-size: 17px; }
+  .pp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; }
+  .pp-head h3 { font-family: var(--serif); font-size: 30px; font-weight: 600; line-height: 1.15; }
+  .pp-head .price { flex-direction: column; align-items: flex-end; gap: 0; white-space: nowrap; }
+  .pp-head .price b { font-size: 24px; }
+  .pp-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pp-tags span { padding: 7px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); font-size: 13px; }
+  .pp-feat { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 10px; background: var(--white); }
+  .pp-feat span { padding: 12px 8px; text-align: center; font-size: 13px; border-left: 1px solid var(--line); }
+  .pp-feat span:first-child { border-left: 0; }
+  .pp-tabs { border: 1px solid var(--line); border-radius: 10px; background: var(--white); overflow: hidden; }
+  .pp-tabbar { display: flex; border-bottom: 1px solid var(--line); }
+  .pp-tabbar button { flex: 1; padding: 14px 6px; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent; }
+  .pp-tabbar button.on { color: var(--ink); border-bottom-color: var(--ink); }
+  .pp-pane { padding: 16px; font-size: 14px; display: grid; gap: 10px; color: var(--ink); }
+  .pp-pane p { color: var(--ink); }
+  @media (max-width: 820px) {
+    .modal.wide { max-width: 100%; }
+    .pp { grid-template-columns: 1fr; gap: 0; padding: 0 0 16px; }
+    .pp-gal, .pp-gal.one { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0; }
+    .pp-gal img { flex: 0 0 100%; scroll-snap-align: center; border-radius: 0; }
+    .pp-count { display: block; position: absolute; right: 12px; bottom: 12px; background: rgba(31,26,23,.75); color: #fff; font-size: 12px; padding: 4px 10px; border-radius: 999px; }
+    .pp-info { position: static; padding: 18px 16px 0; }
+    .pp-head h3 { font-size: 24px; }
+  }
+
+  /* ===== You Might Also Like + map ===== */
+  .rel { padding: 4px 26px 30px; border-top: 1px solid var(--line); }
+  .rel h4 { font-family: var(--serif); font-size: 28px; font-weight: 600; margin: 22px 0 14px; }
+  .rel-wrap { position: relative; }
+  .rel-row { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .rel-row::-webkit-scrollbar { display: none; }
+  .rel-card { flex: 0 0 calc((100% - 42px) / 4); min-width: 190px; scroll-snap-align: start; cursor: pointer; }
+  .rel-media { position: relative; aspect-ratio: 3/4; overflow: hidden; border-radius: 6px; background: var(--cream); }
+  .rel-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+  .rel-card:hover .rel-media img { transform: scale(1.04); }
+  .rel-tag { position: absolute; top: 10px; left: 10px; z-index: 1; background: rgba(31,26,23,.55); color: #fff; padding: 5px 11px; border-radius: 8px; font-size: 12px; backdrop-filter: blur(4px); }
+  .rel-card h5 { font-family: var(--serif); font-size: 17px; font-weight: 600; line-height: 1.25; margin: 8px 0 2px; }
+  .rel-nav { position: absolute; top: 36%; z-index: 2; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.95); box-shadow: 0 6px 16px -6px rgba(0,0,0,.4); font-size: 26px; line-height: 1; display: grid; place-items: center; }
+  .rel-nav.prev { left: -8px; } .rel-nav.next { right: -8px; }
+  .shopmap { background: var(--cream); }
+  .mapbox { border-radius: 12px; overflow: hidden; border: 1px solid var(--line); aspect-ratio: 16 / 7; min-height: 300px; background: var(--white); }
+  .mapbox iframe { width: 100%; height: 100%; border: 0; display: block; }
+  @media (max-width: 820px) {
+    .rel { padding: 4px 16px 24px; }
+    .rel-card { flex-basis: 46%; min-width: 0; }
+    .rel-nav { display: none; }
+    .mapbox { aspect-ratio: 4 / 3; }
+  }
 </style>
 </head>
 <body>
@@ -632,6 +692,7 @@
     <a href="#shop" data-filter="men" data-close-menu>Gents</a>
     <a href="#shop" data-filter="all" data-close-menu>New Arrivals</a>
     <a href="#reviews" data-close-menu>Reviews</a>
+    <a href="#location" data-close-menu>Find Us</a>
     <a href="#contact" data-close-menu>Contact</a>
   </nav>
 </div>
@@ -752,6 +813,19 @@
   </section>
 </main>
 
+<!-- Shop location (Google Maps) -->
+<section class="shopmap" id="location">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Visit us</span>
+      <h2>Our Shop Location</h2>
+      <p id="mapAddr"></p>
+    </div>
+    <div class="mapbox"><iframe id="mapFrame" title="Muhammadi Cloth House on Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+    <div class="actions" style="justify-content:center;margin-top:18px"><a class="btn btn-primary" id="mapDir" target="_blank" rel="noopener">Get Directions</a></div>
+  </div>
+</section>
+
 <!-- Footer -->
 <footer id="contact">
   <div class="container">
@@ -789,6 +863,7 @@
           <li><a id="footPhone" href="#"></a></li>
           <li><a id="footEmail" href="#"></a></li>
           <li>Mon - Sat: 10am - 9pm</li>
+          <li><a href="#location">Find us on Google Maps</a></li>
         </ul>
       </div>
     </div>
@@ -867,6 +942,7 @@ const STORE = {
   phoneDisplay: '+92 324 4266894',
   email: 'usarana034@gmail.com',
   address: 'Sahiwal Farid Town Abbas Chowk',
+  mapQuery: '',                        // optional: Google Maps par dukaan ka exact naam/address likhein (khali ho to name + address use hota hai)
   // Paste your Google Apps Script Web App URL here (see instructions)
   googleSheetUrl: 'https://script.google.com/macros/s/AKfycbyxpmLyUmaS4j5x75v5TRZFpQ27a-b4oV9E6dkw-NjqC_T7ggqLnJKEKNJVJL6wWlM/exec',
   deliveryFee: 250,
@@ -892,7 +968,7 @@ const PRODUCTS = [
   { id:'m3', name:'Premium Wash & Wear - Light Grey', cat:'men', col:'Gents Unstitched', price:3499, compare:4190, img:'images/p3.jpg', badge:'Sale', fabric:'Breathable wash & wear fabric, unstitched suit', desc:'Light grey wash & wear unstitched gents suit with a clean finish. Breathable, comfortable and perfect for everyday wear.' },
   { id:'m4', name:'Premium Wash & Wear - Mustard', cat:'men', col:'Gents Unstitched', price:12500, img:'images/p1.jpg', badge:'Limited', fabric:'Premium wash & wear fabric, unstitched suit', desc:'Premium mustard wash & wear unstitched gents suit in a limited range. Rich colour and a fine finish, easy to stitch to your size.' },
   { id:'w1', name:'Ladies Unstitched Suit - White', cat:'women', col:'Ladies Unstitched', price:4490, img:'images/w1.png', badge:'New', fabric:'Premium soft cotton, unstitched suit', desc:'A timeless white unstitched ladies suit in premium soft cotton. Easy to stitch in any design and comfortable for daily wear.' },
-  { id:'w2', name:'Embroidered Shirt Trouser Shawl', cat:'women', col:'Ladies Unstitched', price:4990, compare:, img:'images/p2.png', badge:'Sale', fabric:'Premium fabric, unstitched suit', desc:'Dyed Embroidered Khaddar Shirt - Dyed Embroidered Pashmina Shawl - Dyed Khaddar Trouser' },
+  { id:'w2', name:'Ladies Premium Unstitched Suit', cat:'women', col:'Ladies Unstitched', price:8990, compare:10500, img:'images/p2.png', badge:'Sale', fabric:'Premium fabric, unstitched suit', desc:'Premium unstitched ladies suit in a rich, elegant fabric. Ready to be stitched in your favourite design for every occasion.' },
   { id:'w3', name:'Wash & Wear Unstitched Suit - Slate', cat:'women', col:'Ladies Unstitched', price:3990, img:'images/p4.png', fabric:'Wrinkle-resistant wash & wear fabric, unstitched suit', desc:'Slate grey wash & wear unstitched suit that stays fresh all day. An easy-care choice for daily wear and travel.' },
   { id:'w4', name:'Ladies Luxury Unstitched Suit', cat:'women', col:'Ladies Unstitched', price:24999, img:'images/p2.jpg', badge:'Premium', fabric:'Luxury fabric, unstitched suit', desc:'Luxury unstitched ladies suit in a fine, premium fabric. A special piece for your most important occasions.' },
 ];
@@ -958,6 +1034,10 @@ const helloLink = waLink(`Assalam o Alaikum ${STORE.name}, I want to ask about y
 $('#waFloat').href = helloLink;
 $('#waSocial').href = helloLink;
 $('#waSocial').target = '_blank';
+const mapQ = STORE.mapQuery || (STORE.name + ' ' + STORE.address + ' Pakistan');
+$('#mapFrame').src = 'https://www.google.com/maps?q=' + encodeURIComponent(mapQ) + '&output=embed';
+$('#mapDir').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapQ);
+$('#mapAddr').textContent = STORE.address + ' \u00b7 Mon - Sat: 10am - 9pm';
 
 window.addEventListener('load', () => setTimeout(() => $('#loader').classList.add('hide'), 400));
 setTimeout(() => $('#loader').classList.add('hide'), 2500);
@@ -1188,19 +1268,52 @@ document.addEventListener('click', e => {
   if (a) { e.preventDefault(); openPolicy(a.dataset.policy); }
 });
 
-/* ---------- Quick view ---------- */
+/* ---------- Product page (full pictures, details, tabs) ---------- */
+const CARE_TEXT = 'Dry clean is recommended for embroidered and premium fabrics. Wash & wear fabrics can be washed by hand in cold water with a mild detergent. Do not bleach. Iron on medium heat.';
+function relatedHTML(p) {
+  const same = PRODUCTS.filter(x => x.id !== p.id && x.cat === p.cat);
+  const rest = PRODUCTS.filter(x => x.id !== p.id && x.cat !== p.cat);
+  const list = [...same, ...rest].slice(0, 8);
+  if (!list.length) return '';
+  return `<div class="rel"><h4>You Might Also Like</h4><div class="rel-wrap">
+    <button type="button" class="rel-nav prev" aria-label="Previous">&#8249;</button>
+    <div class="rel-row" id="relRow">${list.map(x => `
+      <article class="rel-card" data-rel="${x.id}">
+        <div class="rel-media"><span class="rel-tag">${esc(x.col)}</span><img src="${x.img}" alt="${esc(x.name)}" loading="lazy"></div>
+        <h5>${esc(x.name)}</h5>
+        <div class="price"><b>${rs(x.price)}</b>${x.compare ? `<s>${rs(x.compare)}</s>` : ''}</div>
+      </article>`).join('')}</div>
+    <button type="button" class="rel-nav next" aria-label="Next">&#8250;</button>
+  </div></div>`;
+}
 function openQuickView(id, buyMode) {
   const p = find(id); if (!p) return;
   let qty = 1;
-  $('#qvModal').innerHTML = `
+  const imgs = (p.gallery && p.gallery.length) ? p.gallery : [p.img];
+  const tags = [p.col, 'Unstitched', (p.fabric || '').split(',')[0]].filter(Boolean);
+  const panes = [
+    `<p>${esc(p.desc)}</p><p><b>Fabric:</b> ${esc(p.fabric)}</p>`,
+    POLICIES.exchange.items().map(([h, t]) => `<p><b>${h}:</b> ${t}</p>`).join(''),
+    `<p>${esc(p.care || CARE_TEXT)}</p>`
+  ];
+  const m = $('#qvModal');
+  m.classList.add('wide');
+  m.innerHTML = `
     <button class="close-x" data-close aria-label="Close">${ICON_X}</button>
-    <div class="qv">
-      <div><div class="qv-img"><img id="qvMain" src="${p.img}" alt="${esc(p.name)}" /></div>${p.gallery && p.gallery.length > 1 ? `<div class="qv-thumbs">${p.gallery.map((g, i) => `<img src="${g}" alt="" class="${i === 0 ? 'on' : ''}">`).join('')}</div>` : ''}</div>
-      <div class="qv-info">
-        <span class="eyebrow" style="margin:0">${esc(p.col)}</span>
-        <h3>${esc(p.name)}</h3>
-        <div class="price"><b>${rs(p.price)}</b>${p.compare ? `<s>${rs(p.compare)}</s>` : ''}</div>
-        <p>${esc(p.desc)}</p>
+    <div class="pp">
+      <div class="pp-galwrap">
+        <div class="pp-gal ${imgs.length === 1 ? 'one' : ''}" id="ppGal">${imgs.map((g, i) => `<img src="${g}" alt="${esc(p.name)} ${i + 1}">`).join('')}</div>
+        ${imgs.length > 1 ? `<span class="pp-count" id="ppCount">1 / ${imgs.length}</span>` : ''}
+      </div>
+      <div class="pp-info">
+        <div class="pp-rate"><span class="st">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span>4 reviews</span></div>
+        <div class="pp-head"><h3>${esc(p.name)}</h3><div class="price"><b>${rs(p.price)}</b>${p.compare ? `<s>${rs(p.compare)}</s>` : ''}</div></div>
+        <div class="pp-tags">${tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>
+        <div class="pp-feat"><span>&#10003; Quality Checked</span><span>&#9670; Premium Fabric</span><span>&#8644; Easy Exchange</span></div>
+        <div class="pp-tabs">
+          <div class="pp-tabbar"><button class="on" data-t="0">Description</button><button data-t="1">Returns &amp; Exchange</button><button data-t="2">Care Instructions</button></div>
+          <div class="pp-pane" id="ppPane">${panes[0]}</div>
+        </div>
         <div>
           <span class="label">Quantity</span>
           <div class="qty"><button data-q="-1" aria-label="Decrease">&minus;</button><span id="qvQty">1</span><button data-q="1" aria-label="Increase">+</button></div>
@@ -1209,13 +1322,22 @@ function openQuickView(id, buyMode) {
           <button class="btn btn-outline" id="qvAdd">Add to Cart</button>
           <button class="btn btn-primary" id="qvBuy">Buy Now</button>
         </div>
-        <div class="fabric"><b style="color:var(--ink)">Fabric:</b> ${esc(p.fabric)}</div>
       </div>
     </div>
-    ${productReviewsHTML(p.id)}`;
-  const m = $('#qvModal');
+    ${productReviewsHTML(p.id)}${relatedHTML(p)}`;
   m.scrollTop = 0;
-  $$('.qv-thumbs img', m).forEach(t => t.onclick = () => { $('#qvMain').src = t.src; $$('.qv-thumbs img', m).forEach(x => x.classList.toggle('on', x === t)); });
+  $$('[data-rel]', m).forEach(c => c.onclick = () => openQuickView(c.dataset.rel, false));
+  const rr = $('#relRow');
+  if (rr) $$('.rel-nav', m).forEach(b => b.onclick = () => rr.scrollBy({ left: (b.classList.contains('next') ? 1 : -1) * rr.clientWidth * .8, behavior: 'smooth' }));
+  $$('.pp-tabbar button', m).forEach(b => b.onclick = () => {
+    $$('.pp-tabbar button', m).forEach(x => x.classList.toggle('on', x === b));
+    $('#ppPane').innerHTML = panes[Number(b.dataset.t)];
+  });
+  const gal = $('#ppGal');
+  if (gal && $('#ppCount')) gal.addEventListener('scroll', () => {
+    const i = Math.round(gal.scrollLeft / Math.max(1, gal.clientWidth)) + 1;
+    $('#ppCount').textContent = Math.min(i, imgs.length) + ' / ' + imgs.length;
+  }, { passive: true });
   $$('[data-q]', m).forEach(b => b.onclick = () => {
     qty = Math.min(MAX_QTY, Math.max(1, qty + Number(b.dataset.q))); $('#qvQty').textContent = qty;
   });
