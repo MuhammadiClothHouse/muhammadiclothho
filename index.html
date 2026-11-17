@@ -530,6 +530,15 @@
     .eyebrow { margin-bottom: 12px; letter-spacing: .3em; }
     .hero-dots { bottom: 20px; }
   }
+
+  /* ===== Product gallery + admin slots ===== */
+  .qv-thumbs { display: flex; gap: 8px; padding: 10px; overflow-x: auto; background: var(--cream); }
+  .qv-thumbs img { width: 56px; height: 72px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid transparent; flex: none; }
+  .qv-thumbs img.on { border-color: var(--maroon); }
+  .slotrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .slotcol { display: grid; gap: 2px; justify-items: center; font-size: 11px; color: var(--muted); }
+  .slotbox { width: 56px; height: 72px; border: 1px dashed var(--gold); border-radius: 6px; display: grid; place-items: center; overflow: hidden; cursor: pointer; background: var(--white); font-size: 22px; color: var(--gold); }
+  .slotbox img { width: 100%; height: 100%; object-fit: cover; }
 </style>
 </head>
 <body>
@@ -1186,7 +1195,7 @@ function openQuickView(id, buyMode) {
   $('#qvModal').innerHTML = `
     <button class="close-x" data-close aria-label="Close">${ICON_X}</button>
     <div class="qv">
-      <div class="qv-img"><img src="${p.img}" alt="${esc(p.name)}" /></div>
+      <div><div class="qv-img"><img id="qvMain" src="${p.img}" alt="${esc(p.name)}" /></div>${p.gallery && p.gallery.length > 1 ? `<div class="qv-thumbs">${p.gallery.map((g, i) => `<img src="${g}" alt="" class="${i === 0 ? 'on' : ''}">`).join('')}</div>` : ''}</div>
       <div class="qv-info">
         <span class="eyebrow" style="margin:0">${esc(p.col)}</span>
         <h3>${esc(p.name)}</h3>
@@ -1206,6 +1215,7 @@ function openQuickView(id, buyMode) {
     ${productReviewsHTML(p.id)}`;
   const m = $('#qvModal');
   m.scrollTop = 0;
+  $$('.qv-thumbs img', m).forEach(t => t.onclick = () => { $('#qvMain').src = t.src; $$('.qv-thumbs img', m).forEach(x => x.classList.toggle('on', x === t)); });
   $$('[data-q]', m).forEach(b => b.onclick = () => {
     qty = Math.min(MAX_QTY, Math.max(1, qty + Number(b.dataset.q))); $('#qvQty').textContent = qty;
   });
@@ -1530,25 +1540,39 @@ renderReviews();
   $('#rpx').onclick = e => { e.stopPropagation(); off = true; clearTimeout(t1); clearTimeout(t2); box.classList.remove('on'); };
   t1 = setTimeout(show, 3000);
 })();
-/* ================= PICTURES: mobile se badlo, GitHub par direct save ================= */
+/* ================= PICTURES: har product ki 6 pictures, mobile se badlo, GitHub par direct save ================= */
 const GH = { owner:'muhammadiclothhouse', repo:'muhammadiclothhouse.github.io' };
 const ORIG_PACK = STORE.packImg;
+const SLOTS_PER_PRODUCT = 6;
 PRODUCTS.forEach(p => p.orig = p.img);
-let VER = {};
-try { VER = JSON.parse(localStorage.getItem('mch_ver')) || {}; } catch (e) {}
-const withVer = k => VER[k] ? k + '?v=' + VER[k] : k;
+let MAN = {};
+try { MAN = JSON.parse(localStorage.getItem('mch_man')) || {}; } catch (e) {}
+const pSlot = (p, n) => `images/${p.id}-${n}.jpg`;
+const srcOf = k => MAN[k] ? k + '?v=' + MAN[k] : k;
 
 function applyImages() {
-  PRODUCTS.forEach(p => p.img = withVer(p.orig));
+  PRODUCTS.forEach(p => {
+    p.gallery = [];
+    for (let n = 1; n <= SLOTS_PER_PRODUCT; n++) if (MAN[pSlot(p, n)]) p.gallery.push(srcOf(pSlot(p, n)));
+    p.img = p.gallery[0] || srcOf(p.orig);
+  });
   $$('.slide img').forEach(im => {
     im.dataset.o = im.dataset.o || im.getAttribute('src');
-    im.src = withVer(im.dataset.o);
+    im.src = srcOf(im.dataset.o);
   });
-  STORE.packImg = withVer(ORIG_PACK);
+  STORE.packImg = srcOf(ORIG_PACK);
   renderGrid($('.tab.active')?.dataset.tab || 'all');
   renderCart();
 }
+async function loadManifest() {
+  try {
+    const r = await fetch('images/manifest.json?t=' + Date.now());
+    if (r.ok) { MAN = await r.json(); localStorage.setItem('mch_man', JSON.stringify(MAN)); }
+  } catch (e) {}
+  applyImages();
+}
 applyImages();
+loadManifest();
 
 function getToken() {
   let t = localStorage.getItem('mch_gh');
@@ -1558,34 +1582,37 @@ function getToken() {
   }
   return t;
 }
-async function ghSave(path, base64) {
-  const api = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}`;
-  const h = { Authorization: 'Bearer ' + getToken(), Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' };
+const ghApi = path => `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}`;
+const ghHead = () => ({ Authorization: 'Bearer ' + getToken(), Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' });
+async function ghPut(path, base64, msg) {
   let sha;
-  const r0 = await fetch(api + '?t=' + Date.now(), { headers: h });
+  const r0 = await fetch(ghApi(path) + '?t=' + Date.now(), { headers: ghHead() });
   if (r0.ok) sha = (await r0.json()).sha;
   else if (r0.status !== 404) throw new Error('read ' + r0.status);
-  const r = await fetch(api, { method: 'PUT', headers: h, body: JSON.stringify({ message: 'Update ' + path, content: base64, ...(sha ? { sha } : {}) }) });
+  const r = await fetch(ghApi(path), { method: 'PUT', headers: ghHead(), body: JSON.stringify({ message: msg, content: base64, ...(sha ? { sha } : {}) }) });
   if (!r.ok) throw new Error('save ' + r.status);
+}
+async function ghSaveImage(slot, base64) {
+  await ghPut(slot, base64, 'Update ' + slot);
+  let man = {};
+  const r0 = await fetch(ghApi('images/manifest.json') + '?t=' + Date.now(), { headers: ghHead() });
+  if (r0.ok) { try { man = JSON.parse(atob((await r0.json()).content.replace(/\n/g, ''))) || {}; } catch (e) { man = {}; } }
+  man[slot] = Date.now();
+  await ghPut('images/manifest.json', btoa(JSON.stringify(man)), 'Update picture list');
+  return man;
 }
 
 /* Admin panel: site ke link ke aakhir mein #admin lagayein */
 function openAdmin() {
   if (!getToken()) return;
-  const slots = [['images/slider.jpg','Slider 1 (Ladies)'], ['images/slider2.jpg','Slider 2 (Gents)'], ['images/packing.jpg','Packing Box']];
-  const seen = new Set(slots.map(s => s[0]));
-  PRODUCTS.forEach(p => { if (!seen.has(p.orig)) { seen.add(p.orig); slots.push([p.orig, p.name]); } });
+  const box = (k, label, fb) => `<label class="slotbox" title="${esc(label)}">${MAN[k] ? `<img src="${srcOf(k)}" alt="">` : (fb ? `<img src="${fb}" alt="" style="opacity:.55">` : '<span>+</span>')}<input type="file" accept="image/*" class="sr-only" data-slot="${esc(k)}"></label>`;
+  const fixed = [['images/slider.jpg', 'Slider 1'], ['images/slider2.jpg', 'Slider 2'], ['images/packing.jpg', 'Packing Box']];
   $('#policyModal').innerHTML = `
     <button class="close-x" data-close aria-label="Close">${ICON_X}</button>
     <div class="modal-head"><h3>Change Pictures</h3></div>
     <div class="policy-body">
-      ${slots.map(([k, n]) => `
-        <div class="policy-item" style="display:flex;gap:12px;align-items:center">
-          <img src="${withVer(k)}" style="width:56px;height:72px;object-fit:cover;border-radius:6px;background:#eee" alt="">
-          <div style="flex:1;min-width:0"><h4 style="font-size:17px">${esc(n)}</h4><p style="font-size:12px">${esc(k)}</p></div>
-          <label class="btn btn-outline" style="padding:9px 12px;font-size:10px;cursor:pointer">Change
-            <input type="file" accept="image/*" class="sr-only" data-slot="${esc(k)}"></label>
-        </div>`).join('')}
+      <div class="policy-item"><h4 style="font-size:17px">Site pictures</h4><div class="slotrow">${fixed.map(([k, n]) => `<div class="slotcol">${box(k, n, k)}<small>${esc(n)}</small></div>`).join('')}</div></div>
+      ${PRODUCTS.map(p => `<div class="policy-item"><h4 style="font-size:17px">${esc(p.name)} <small>(${esc(p.id)})</small></h4><div class="slotrow">${Array.from({ length: SLOTS_PER_PRODUCT }, (_, i) => `<div class="slotcol">${box(pSlot(p, i + 1), p.name + ' #' + (i + 1), i === 0 ? srcOf(p.orig) : '')}<small>${i + 1}</small></div>`).join('')}</div></div>`).join('')}
       <button type="button" class="btn btn-outline" id="resetToken">Token badlein</button>
     </div>`;
   openOverlay('#policyOverlay');
@@ -1599,9 +1626,8 @@ document.addEventListener('change', async e => {
   toast('Picture save ho rahi hai...');
   try {
     const data = (await compressImage(inp.files[0], 1400, 0.82)).split(',')[1];
-    await ghSave(slot, data);
-    VER[slot] = Date.now();
-    localStorage.setItem('mch_ver', JSON.stringify(VER));
+    MAN = await ghSaveImage(slot, data);
+    localStorage.setItem('mch_man', JSON.stringify(MAN));
     applyImages();
     toast('Picture save ho gayi! Sab ko 1-3 minute mein nazar aayegi');
     openAdmin();
